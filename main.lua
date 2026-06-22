@@ -1,29 +1,35 @@
--- main.lua - THE ENGINE LOADER
--- Target Repo: mosaab090/wolf_hub
-
+-- main.lua - DEBUGGER VERSION
 local BaseUrl = "https://raw.githubusercontent.com/mosaab090/wolf_hub/main/"
+local modules = {"shared", "utils", "farm", "boss", "esp", "teleport", "stats", "misc", "ui"}
 
--- 1. Load Core Assets
-getgenv().RedzDreamConfig = loadstring(game:HttpGet(BaseUrl .. "shared.lua"))()
-getgenv().Utils = loadstring(game:HttpGet(BaseUrl .. "utils.lua"))()
+print("--- Wolf Hub: Starting Sync ---")
 
--- 2. Load Modules
-local Farm = loadstring(game:HttpGet(BaseUrl .. "farm.lua"))()
-local Boss = loadstring(game:HttpGet(BaseUrl .. "boss.lua"))()
-local ESP = loadstring(game:HttpGet(BaseUrl .. "esp.lua"))()
-local Teleport = loadstring(game:HttpGet(BaseUrl .. "teleport.lua"))()
-local Stats = loadstring(game:HttpGet(BaseUrl .. "stats.lua"))()
-local Misc = loadstring(game:HttpGet(BaseUrl .. "misc.lua"))()
-local UI = loadstring(game:HttpGet(BaseUrl .. "ui.lua"))()
+local function safeLoad(name)
+    local url = BaseUrl .. name .. ".lua"
+    local success, result = pcall(function()
+        return loadstring(game:HttpGet(url))()
+    end)
+    
+    if not success then
+        warn("FAILED TO LOAD: " .. name .. ".lua")
+        warn("Error: " .. tostring(result))
+        return nil
+    else
+        print("Successfully loaded: " .. name)
+        return result
+    end
+end
 
--- 3. Bootstrap the Environment
-print("--- Wolf Hub: Syncing Modules from GitHub ---")
+-- Load everything
+getgenv().RedzDreamConfig = safeLoad("shared")
+getgenv().Utils = safeLoad("utils")
 
--- Initialize Systems
-Farm:Init()
-Boss:Init()
-ESP:Update()
-Misc:AntiAfk()
-UI:Create()
+local Farm = safeLoad("farm")
+local Boss = safeLoad("boss")
+local ESP = safeLoad("esp")
+local Teleport = safeLoad("teleport")
+local Stats = safeLoad("stats")
+local Misc = safeLoad("misc")
+local UI = safeLoad("ui")
 
-print("--- Wolf Hub: Production Build Live! ---")
+print("--- Wolf Hub: Load Sequence Complete ---")
